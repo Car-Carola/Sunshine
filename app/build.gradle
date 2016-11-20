@@ -18,6 +18,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'OPEN_WEATHER_MAP_API_KEY', MyOpenWeatherMapApiKey
+    }
 }
 
 dependencies {
@@ -30,5 +33,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.0.0'
     compile 'com.android.support:recyclerview-v7:25.0.0'
     compile 'com.android.support:support-vector-drawable:25.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.2'
+
     testCompile 'junit:junit:4.12'
 }

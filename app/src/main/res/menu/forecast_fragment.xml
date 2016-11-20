@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_refresh"
+        android:title="@string/action_refresh"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_layouot_group"
+        android:title="Layout Options" >
+        <!-- "file" submenu -->
+        <menu>
+            <item android:id="@+id/vertical_lm"
+                android:title="Vertical LinearLayoutManager"
+                app:showAsAction="never"/>
+            <item android:id="@+id/horizontal_lm"
+                android:title="Horizontal LinearLayoutManager"
+                app:showAsAction="never"/>
+            <item android:id="@+id/grid_lm"
+                android:title="Grid LayoutManager"
+                app:showAsAction="never"/>
+            <item android:id="@+id/staggered_lm"
+                android:title="Staggered Grid LayoutManager"
+                app:showAsAction="never"/>
+
+        </menu>
+    </item>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
+</menu>

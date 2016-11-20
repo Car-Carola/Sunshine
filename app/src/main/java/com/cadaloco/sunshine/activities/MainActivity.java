@@ -14,10 +14,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         LogUtil.logMethodCalled();
-        LogUtil.v("test v");
+/*        LogUtil.v("test v");
         LogUtil.d("test d");
         LogUtil.i("test i");
         LogUtil.w("test w");
-        LogUtil.e("test e");
+        LogUtil.e("test e");*/
     }
 }

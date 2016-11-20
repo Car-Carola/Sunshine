@@ -21,7 +21,6 @@ import java.text.MessageFormat;
  */
 public class LogUtil {
 
-	//TODO: use your own TAG here
 	private static final String TAG = "MY_TAG";
 
 	/*********************************
