@@ -1,7 +1,6 @@
 package com.cadaloco.sunshine.activities;
 
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,11 +16,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.cadaloco.sunshine.BuildConfig;
 import com.cadaloco.sunshine.LogUtil;
 import com.cadaloco.sunshine.R;
+import com.cadaloco.sunshine.adapters.ForecastEntriesAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +52,7 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-     //   Context.checkSelfPermission();
+        //   Context.checkSelfPermission();
     }
 
     @Override
@@ -82,10 +81,32 @@ public class ForecastFragment extends Fragment {
                 "Sat 7/5 - TRAPPED IN WEATHERSTATION - 23/18",
                 "Sun 7/6 - Sunny - 20/7"
         };
-        List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
+        final List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
 
-        ForecastEntriesAdapter adapter = new ForecastEntriesAdapter(getActivity(), weekForecast);
+        //ForecastEntriesAdapter adapter = new ForecastEntriesAdapter(weekForecast);
+
+        ForecastEntriesAdapter adapter = new ForecastEntriesAdapter(weekForecast);
         recyclerView.setAdapter(adapter);
+
+/*
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListenerRoman(getActivity().getApplicationContext(), recyclerView, new RecyclerTouchListenerRoman.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                String string = weekForecast.get(position);
+                Toast.makeText(getActivity().getApplicationContext(), string + " is selected!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+*/
+         //TODO - for lesson 3 - implement on itemclick for the list
+        //recyclerView.addOnItemTouchListener( );
+        //recyclerView.addOnItemTouchListener(); //when i get the position:
+        //when you filter the items on the list the position changes!
+        //use the position from getItemOnPosition... and NOT from (int position)
 
         recyclerView.setLayoutManager(new LinearLayoutManager(
                 getActivity(),
@@ -119,17 +140,17 @@ public class ForecastFragment extends Fragment {
                 final String DAYS_PARAM = "cnt";
                 final String APPID_PARAM = "APPID";
 
-                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                                 .appendQueryParameter(QUERY_PARAM, params[0])
-                                 .appendQueryParameter(FORMAT_PARAM, format)
-                                 .appendQueryParameter(UNITS_PARAM, units)
-                                 .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                                 .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
-                                 .build();
+                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(FORMAT_PARAM, format)
+                        .appendQueryParameter(UNITS_PARAM, units)
+                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                        .build();
 
                 url = new URL(builtUri.toString());
 
-    //            url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7&APPID=d7bc8f3a015d6a50331aa4ba5ec7aebf");
+                //            url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7&APPID=d7bc8f3a015d6a50331aa4ba5ec7aebf");
                 LogUtil.v(builtUri.toString());
 
                 OkHttpClient client = new OkHttpClient();
@@ -138,7 +159,7 @@ public class ForecastFragment extends Fragment {
                 forecastJsonStr = response.body().string();
                 LogUtil.v(forecastJsonStr);
 
-                return getWeatherDataFromJson(forecastJsonStr,numDays);
+                return getWeatherDataFromJson(forecastJsonStr, numDays);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -146,20 +167,20 @@ public class ForecastFragment extends Fragment {
                 LogUtil.e("Error getting JSON from: " + url.toString() + " " + e.getMessage());
                 e.printStackTrace();
             }
-                return null;
+            return null;
         }
 
         @Override
         protected void onPostExecute(String[] result) {
-            ((ForecastEntriesAdapter)recyclerView.getAdapter()).swap(Arrays.asList(result));
-     //       ((ForecastEntriesAdapter)recyclerView.getAdapter()).reList(Arrays.asList(result));
+            ((ForecastEntriesAdapter) recyclerView.getAdapter()).swapData(Arrays.asList(result));
+            //       ((ForecastEntriesAdapter)recyclerView.getAdapter()).reList(Arrays.asList(result));
         }
 
         //Helper methods
                 /* The date/time conversion code is going to be moved outside the asynctask later,
          * so for convenience we're breaking it out into its own method now.
          */
-        private String getReadableDateString(long time){
+        private String getReadableDateString(long time) {
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
             SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
@@ -181,7 +202,7 @@ public class ForecastFragment extends Fragment {
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
-         *
+         * <p>
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
@@ -217,7 +238,7 @@ public class ForecastFragment extends Fragment {
             dayTime = new Time();
 
             String[] resultStrs = new String[numDays];
-            for(int i = 0; i < weatherArray.length(); i++) {
+            for (int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day;
                 String description;
@@ -231,7 +252,7 @@ public class ForecastFragment extends Fragment {
                 // "this saturday".
                 long dateTime;
                 // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
+                dateTime = dayTime.setJulianDay(julianStartDay + i);
                 day = getReadableDateString(dateTime);
 
                 // description is in a child array called "weather", which is 1 element long.
@@ -290,70 +311,7 @@ public class ForecastFragment extends Fragment {
 
             default:
                 return super.onOptionsItemSelected(item);
-        }    }
-
-    //RecyclerView Classes
-    public static class ForecastViewHolder extends RecyclerView.ViewHolder{
-        TextView forecast;
-
-        public ForecastViewHolder(View itemView) {
-            super(itemView);
         }
     }
 
-    public static class ForecastEntriesAdapter extends RecyclerView.Adapter<ForecastViewHolder> {
-
-        private List<String> weekForecast;
-        private LayoutInflater inflater;
-
-        public ForecastEntriesAdapter(Context context, List<String> weekForecast) {
-
-            this.weekForecast = weekForecast;
-            this.inflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public ForecastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            //Creates itemView line
-            View itemView = inflater.inflate(R.layout.list_item_forecast, parent, false);
-            ForecastViewHolder holder = new ForecastViewHolder(itemView);
-
-            //initialize views in line
-            holder.forecast = (TextView) itemView.findViewById(R.id.list_item_forecast_textView);
-
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(ForecastViewHolder holder, int position) {
-
-            String forecastText = weekForecast.get(position);
-            holder.forecast.setText(forecastText);
-        }
-
-        @Override
-        public int getItemCount() {
-
-            return weekForecast.size() - 1;
-        }
-
-        public void swap(List<String> newList) {
-            if (weekForecast != null) {
-                weekForecast.clear();
-                weekForecast.addAll(newList);
-            } else {
-                weekForecast = newList;
-            }
-            notifyDataSetChanged();
-        }
-/*        public void reList(List<String> newList) {
-            if (weekForecast != null) {
-                weekForecast.clear();
-                for (String forecast : weekForecast) {
-                    weekForecast.add(forecast);
-                }
-            }
-        }*/
-    }
 }
