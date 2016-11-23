@@ -16,11 +16,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.cadaloco.sunshine.BuildConfig;
 import com.cadaloco.sunshine.LogUtil;
 import com.cadaloco.sunshine.R;
-import com.cadaloco.sunshine.adapters.ForecastEntriesAdapter;
+import com.cadaloco.sunshine.adapters.ForecastAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,35 +84,29 @@ public class ForecastFragment extends Fragment {
         };
         final List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
 
-        //ForecastEntriesAdapter adapter = new ForecastEntriesAdapter(weekForecast);
+        ForecastAdapter adapter = new ForecastAdapter(weekForecast);
 
-        ForecastEntriesAdapter adapter = new ForecastEntriesAdapter(weekForecast);
         recyclerView.setAdapter(adapter);
-
-/*
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListenerRoman(getActivity().getApplicationContext(), recyclerView, new RecyclerTouchListenerRoman.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                String string = weekForecast.get(position);
-                Toast.makeText(getActivity().getApplicationContext(), string + " is selected!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));
-*/
-         //TODO - for lesson 3 - implement on itemclick for the list
-        //recyclerView.addOnItemTouchListener( );
-        //recyclerView.addOnItemTouchListener(); //when i get the position:
-        //when you filter the items on the list the position changes!
-        //use the position from getItemOnPosition... and NOT from (int position)
 
         recyclerView.setLayoutManager(new LinearLayoutManager(
                 getActivity(),
                 LinearLayoutManager.VERTICAL,
                 false));
+
+
+        adapter.setOnItemClickListener(new ForecastAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                String name = weekForecast.get(position);
+                Toast.makeText(getActivity().getApplicationContext(), name + " was clicked!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Another implementatiofor itemclick for recycler view
+        //recyclerView.addOnItemTouchListener( );
+        //recyclerView.addOnItemTouchListener(); //when i get the position:
+        //when you filter the items on the list the position changes!
+        //use the position from getItemOnPosition... and NOT from (int position)
 
         return view;
     }
@@ -172,8 +167,7 @@ public class ForecastFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String[] result) {
-            ((ForecastEntriesAdapter) recyclerView.getAdapter()).swapData(Arrays.asList(result));
-            //       ((ForecastEntriesAdapter)recyclerView.getAdapter()).reList(Arrays.asList(result));
+            ((ForecastAdapter) recyclerView.getAdapter()).swapData(Arrays.asList(result));
         }
 
         //Helper methods
