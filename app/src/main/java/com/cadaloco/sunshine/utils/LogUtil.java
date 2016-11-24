@@ -1,4 +1,4 @@
-package com.cadaloco.sunshine;
+package com.cadaloco.sunshine.utils;
 
 import android.util.Log;
 
@@ -21,7 +21,7 @@ import java.text.MessageFormat;
  */
 public class LogUtil {
 
-	private static final String TAG = "MY_TAG";
+	private static final String TAG = "Sunshine";
 
 	/*********************************
 	 * public static methods
