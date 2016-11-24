@@ -1,10 +1,13 @@
 package com.cadaloco.sunshine.activities;
 
-
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,9 +22,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.cadaloco.sunshine.BuildConfig;
-import com.cadaloco.sunshine.LogUtil;
 import com.cadaloco.sunshine.R;
 import com.cadaloco.sunshine.adapters.ForecastAdapter;
+import com.cadaloco.sunshine.utils.LogUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,28 +35,25 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ForecastFragment extends Fragment {
 
     private RecyclerView recyclerView;
 
     public ForecastFragment() {
-        // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        //   Context.checkSelfPermission();
+
+        LogUtil.logMethodCalled();
     }
 
     @Override
@@ -63,28 +63,9 @@ public class ForecastFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_forecast);
 
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7",
-                "Mon 6/30 - Sunny - 31/17",
-                "Tue 7/1 - Foggy - 21/8",
-                "Wed 7/2 - Cloudy - 22/17",
-                "Thurs 7/3 - Rainy - 18/11",
-                "Fri 7/4 - Foggy - 21/10",
-                "Sat 7/5 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 7/6 - Sunny - 20/7"
-        };
-        final List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
-
-        ForecastAdapter adapter = new ForecastAdapter(weekForecast);
+        final ForecastAdapter adapter = new ForecastAdapter(new ArrayList<String>());
 
         recyclerView.setAdapter(adapter);
 
@@ -93,30 +74,30 @@ public class ForecastFragment extends Fragment {
                 LinearLayoutManager.VERTICAL,
                 false));
 
+        recyclerView.addItemDecoration(new DividerItemDecoration(
+                getActivity(), LinearLayoutManager.VERTICAL));
 
         adapter.setOnItemClickListener(new ForecastAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                String name = weekForecast.get(position);
-                Toast.makeText(getActivity().getApplicationContext(), name + " was clicked!", Toast.LENGTH_SHORT).show();
+                LogUtil.logMethodCalled();
+                String forecast = adapter.getItem(position);
+                Toast.makeText(getActivity().getApplicationContext(), forecast + " was clicked!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
             }
         });
 
-        //Another implementatiofor itemclick for recycler view
-        //recyclerView.addOnItemTouchListener( );
-        //recyclerView.addOnItemTouchListener(); //when i get the position:
-        //when you filter the items on the list the position changes!
-        //use the position from getItemOnPosition... and NOT from (int position)
-
-        return view;
+      return view;
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
-        private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
-
         @Override
         protected String[] doInBackground(String... params) {
+
+            LogUtil.logMethodCalled();
             // If there's no zip code, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
                 return null;
@@ -126,7 +107,7 @@ public class ForecastFragment extends Fragment {
 
             String format = "json";
             String units = "metric";
-            int numDays = 7;
+            int numDays = 10;
             try {
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
                 final String QUERY_PARAM = "q";
@@ -167,6 +148,7 @@ public class ForecastFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String[] result) {
+            LogUtil.logMethodCalled();
             ((ForecastAdapter) recyclerView.getAdapter()).swapData(Arrays.asList(result));
         }
 
@@ -184,7 +166,15 @@ public class ForecastFragment extends Fragment {
         /**
          * Prepare the weather high/lows for presentation.
          */
-        private String formatHighLows(double high, double low) {
+        private String formatHighLows(double high, double low, String unitType) {
+
+            if (unitType.equals(getString(R.string.pref_temp_imperial))) {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            } else if (!unitType.equals(getString(R.string.pref_temp_metric))) {
+                LogUtil.d("Unit type not found: " + unitType);
+            }
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
@@ -232,6 +222,14 @@ public class ForecastFragment extends Fragment {
             dayTime = new Time();
 
             String[] resultStrs = new String[numDays];
+
+            SharedPreferences sharedPrefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    String unitType = sharedPrefs.getString(
+                    getString(R.string.pref_temp_key),
+                    getString(R.string.pref_temp_metric));
+
+
             for (int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day;
@@ -259,13 +257,10 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
-                highAndLow = formatHighLows(high, low);
+                highAndLow = formatHighLows(high, low, unitType);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
-            for (String s : resultStrs) {
-                LogUtil.v("Forecast entry: " + s);
-            }
             return resultStrs;
 
         }
@@ -294,18 +289,32 @@ public class ForecastFragment extends Fragment {
             case R.id.staggered_lm:
                 recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
                 return true;
-            //layout manager
+
             case R.id.action_refresh: {
-                FetchWeatherTask weatherTask = new FetchWeatherTask();
-                weatherTask.execute("94043");
+                updateWeather();
+
                 return true;
             }
-            case R.id.action_settings:
-                return true;
-
-            default:
+           default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+     private void updateWeather() {
+         LogUtil.logMethodCalled();
+
+         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        String zipCode = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        weatherTask.execute(zipCode);
+    }
+
+    @Override
+    public void onStart() {
+        LogUtil.logMethodCalled();
+
+        super.onStart();
+        updateWeather();
+    }
 }

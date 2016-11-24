@@ -24,7 +24,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     public static class ForecastViewHolder extends RecyclerView.ViewHolder{
 
-        TextView forecast;
+        private TextView forecast;
 
         public ForecastViewHolder(final View itemView) {
             super(itemView);
@@ -93,4 +93,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         notifyDataSetChanged();
     }
 
+    public String getItem(int position) {
+        return weekForecast.get(position);
+    }
 }
