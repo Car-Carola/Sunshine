@@ -19,7 +19,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.cadaloco.sunshine.BuildConfig;
 import com.cadaloco.sunshine.R;
@@ -42,6 +41,7 @@ import okhttp3.Response;
 
 public class ForecastFragment extends Fragment {
 
+    public static final String FORECAST_FRAGMENT = "FORECAST_FRAGMENT";
     private RecyclerView recyclerView;
 
     public ForecastFragment() {
@@ -77,14 +77,15 @@ public class ForecastFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(
                 getActivity(), LinearLayoutManager.VERTICAL));
 
+        //TODO - move anonymous class to adapter
         adapter.setOnItemClickListener(new ForecastAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 LogUtil.logMethodCalled();
                 String forecast = adapter.getItem(position);
-                Toast.makeText(getActivity().getApplicationContext(), forecast + " was clicked!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                //Toast.makeText(getActivity().getApplicationContext(), forecast + " was clicked!", Toast.LENGTH_SHORT).show();
+
+                Intent intent = DetailActivity.createIntent(getActivity().getApplicationContext(), forecast);
                 startActivity(intent);
             }
         });
@@ -317,4 +318,5 @@ public class ForecastFragment extends Fragment {
         super.onStart();
         updateWeather();
     }
+
 }

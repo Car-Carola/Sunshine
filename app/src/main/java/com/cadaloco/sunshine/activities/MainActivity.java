@@ -14,6 +14,8 @@ import com.cadaloco.sunshine.utils.LogUtil;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String SAVE_RESTORE_MAIN_FRAGMENT = "SAVE_RESTORE_MAIN_FRAGMENT";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,4 +75,51 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.d("Couldn't call " + location + ", no receiving apps installed!");
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LogUtil.logMethodCalled();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LogUtil.logMethodCalled();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LogUtil.logMethodCalled();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LogUtil.logMethodCalled();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        LogUtil.logMethodCalled();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LogUtil.logMethodCalled();
+    }
+
+ /*   @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Fragment currentFragment = getFragmentManager().findFragmentById(R.id.fragment);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+    }*/
 }
