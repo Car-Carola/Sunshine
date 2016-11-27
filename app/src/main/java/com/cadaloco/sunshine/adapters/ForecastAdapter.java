@@ -1,5 +1,7 @@
 package com.cadaloco.sunshine.adapters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cadaloco.sunshine.R;
+import com.cadaloco.sunshine.activities.DetailActivity;
+import com.cadaloco.sunshine.utils.LogUtil;
 
 import java.util.List;
 
@@ -24,25 +28,15 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     public static class ForecastViewHolder extends RecyclerView.ViewHolder{
 
+        private final View mView;
         private TextView forecast;
 
         public ForecastViewHolder(final View itemView) {
             super(itemView);
+            mView = itemView;
+
             forecast = (TextView) itemView.findViewById(R.id.list_item_forecast_textView);
 
-            // Setup the click listener
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Triggers click upwards to the adapter on click
-                    if (listener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            listener.onItemClick(itemView, position);
-                        }
-                    }
-                }
-            });
         }
 
     }
@@ -75,10 +69,23 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     }
 
     @Override
-    public void onBindViewHolder(ForecastViewHolder holder, int position) {
+    public void onBindViewHolder(final ForecastViewHolder holder, final int position) {
 
         String item = weekForecast.get(position);
         holder.forecast.setText(item);
+
+        holder.mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = v.getContext();
+                LogUtil.logMethodCalled();
+                String forecast = getItem(position);
+                //Toast.makeText(getActivity().getApplicationContext(), forecast + " was clicked!", Toast.LENGTH_SHORT).show();
+
+                Intent intent = DetailActivity.createIntent(context, forecast);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.cadaloco.sunshine.activities;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -77,18 +76,6 @@ public class ForecastFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(
                 getActivity(), LinearLayoutManager.VERTICAL));
 
-        //TODO - move anonymous class to adapter
-        adapter.setOnItemClickListener(new ForecastAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                LogUtil.logMethodCalled();
-                String forecast = adapter.getItem(position);
-                //Toast.makeText(getActivity().getApplicationContext(), forecast + " was clicked!", Toast.LENGTH_SHORT).show();
-
-                Intent intent = DetailActivity.createIntent(getActivity().getApplicationContext(), forecast);
-                startActivity(intent);
-            }
-        });
 
       return view;
     }
