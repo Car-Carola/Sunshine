@@ -18,7 +18,9 @@
         android:background="?attr/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:minHeight="@dimen/abc_action_bar_default_height_material" >
+        android:minHeight="@dimen/abc_action_bar_default_height_material"
+        app:popupTheme="@style/AppTheme.PopupOverlay" >
+
     </android.support.v7.widget.Toolbar>
     <TextView
         android:id="@+id/tv_fd_forecast"

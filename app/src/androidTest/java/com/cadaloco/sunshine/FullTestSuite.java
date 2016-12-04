@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cadaloco.sunshine.data;
+package com.cadaloco.sunshine;
 
 import android.test.suitebuilder.TestSuiteBuilder;
 

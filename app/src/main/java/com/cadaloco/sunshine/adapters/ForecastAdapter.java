@@ -23,9 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 //RecyclerView Classes
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder> {
 
-    /*
-    Recycler View Implementation: https://guides.codepath.com/android/using-the-recyclerview
-     */
+
     public static class ForecastViewHolder extends RecyclerView.ViewHolder{
 
         private final View mView;
@@ -39,17 +37,6 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
         }
 
-    }
-
-    // Define listener member variable
-    private static OnItemClickListener listener;
-    // Define the listener interface
-    public interface OnItemClickListener {
-        void onItemClick(View itemView, int position);
-    }
-    // Define the method that allows the parent activity or fragment to define the listener
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        ForecastAdapter.listener = listener;
     }
 
     private List<String> weekForecast;
