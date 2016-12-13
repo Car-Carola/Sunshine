@@ -1,0 +1,68 @@
+package com.cadaloco.sunshine.adapters;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.cadaloco.adapterlib.RecyclerViewCursorAdapter;
+import com.cadaloco.adapterlib.RecyclerViewCursorViewHolder;
+import com.cadaloco.sunshine.R;
+
+/**
+ * Created by Carol on 22-Nov-16.
+ */
+
+//RecyclerView Classes
+public class ForecastCursorAdapter extends RecyclerViewCursorAdapter<ForecastCursorAdapter.ForecastViewHolder> {
+
+    /**
+     * Index of the name column.
+     */
+    private static final int NAME_INDEX = 1;
+
+    public ForecastCursorAdapter(Context context) {
+        super(context);
+
+        setupCursorAdapter(null, 0, R.layout.list_item_forecast, false);
+    }
+
+    @Override
+    public ForecastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new ForecastViewHolder(mCursorAdapter.newView(mContext, mCursorAdapter.getCursor(), parent));
+    }
+
+    @Override
+    public void onBindViewHolder(ForecastViewHolder holder, int position) {
+
+        // Passing the binding operation to cursor loader
+        mCursorAdapter.getCursor().moveToPosition(position); //EDITED: added this line as suggested in the comments below, thanks :)
+
+        // Set the ViewHolder
+        setViewHolder(holder);
+
+        // Bind this view
+        mCursorAdapter.bindView(holder.itemView, mContext, mCursorAdapter.getCursor());
+
+    }
+
+
+    public static class ForecastViewHolder extends RecyclerViewCursorViewHolder{
+
+        private final View mView;
+        private TextView forecast;
+
+        public ForecastViewHolder(final View itemView) {
+            super(itemView);
+            mView = itemView;
+
+            forecast = (TextView) itemView.findViewById(R.id.list_item_forecast_textView);
+
+        }
+        @Override
+        public void bindCursor(Cursor cursor) {
+            forecast.setText(cursor.getString(NAME_INDEX));
+        }
+    }
+}
