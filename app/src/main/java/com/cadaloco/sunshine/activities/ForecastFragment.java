@@ -4,27 +4,37 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.cadaloco.sunshine.R;
 import com.cadaloco.sunshine.adapters.FetchWeatherTask;
-import com.cadaloco.sunshine.adapters.ForecastCursorAdapter;
+import com.cadaloco.sunshine.adapters.ForecastRecyclerViewAdapter;
+import com.cadaloco.sunshine.adapters.RecyclerViewCursorAdapter;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.utils.LogUtil;
 import com.cadaloco.sunshine.utils.Utility;
 
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    public static final String FORECAST_FRAGMENT = "FORECAST_FRAGMENT";
-    //private RecyclerView mRecyclerView;
-    private ForecastCursorAdapter mForecastAdapter;
-    //private RecyclerView mRecyclerView;
+    private static final int FORECAST_LOADER = 0;
+
+    private RecyclerViewCursorAdapter mForecastAdapter;
+
+    private RecyclerView mRecyclerView;
 
     public ForecastFragment() {
     }
@@ -41,40 +51,18 @@ public class ForecastFragment extends Fragment {
 
         LogUtil.logMethodCalled();
 
-        String locationSetting = Utility.getPreferredLocation(getActivity());
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        // Sort order:  Ascending, by date.
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                locationSetting, System.currentTimeMillis());
-
-        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
-                null, null, null, sortOrder);
-
-        // The CursorAdapter will take data from our cursor and populate the ListView
-        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
-        // up with an empty list the first time we run.
-        mForecastAdapter = new ForecastCursorAdapter(getActivity().getApplicationContext(), cur, 0);
-
-        View rootView = inflater.inflate(R.layout.fragment_list_main, container, false);
-
-        // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
+        setupRecyclerView(rootView);
 
         return rootView;
-/*        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        setupRecyclerView(view);
-
-      return view;*/
     }
 
-/*    private void setupRecyclerView(View view) {
+    private void setupRecyclerView(View view) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_forecast);
 
-        mForecastAdapter = new ForecastAdapter(new ArrayList<String>());
-
+        mForecastAdapter = new ForecastRecyclerViewAdapter(getActivity().getApplicationContext());
         mRecyclerView.setAdapter(mForecastAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(
@@ -84,7 +72,14 @@ public class ForecastFragment extends Fragment {
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(
                 getActivity(), LinearLayoutManager.VERTICAL));
-    }*/
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        LogUtil.logMethodCalled();
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
 
     //menu
     @Override
@@ -96,7 +91,6 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-/*
             //layout manager
             case R.id.vertical_lm:
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -110,7 +104,6 @@ public class ForecastFragment extends Fragment {
             case R.id.staggered_lm:
                 mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
                 return true;
-*/
 
             case R.id.action_refresh: {
                 updateWeather();
@@ -128,13 +121,6 @@ public class ForecastFragment extends Fragment {
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity().getApplicationContext());
         String location = Utility.getPreferredLocation(getActivity());
         weatherTask.execute(location);
-
-/*        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        String zipCode = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
-        weatherTask.execute(zipCode);
-    */
     }
 
     @Override
@@ -145,4 +131,54 @@ public class ForecastFragment extends Fragment {
 
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        LogUtil.logMethodCalled();
+
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                locationSetting, System.currentTimeMillis());
+
+        switch(id) {
+            case FORECAST_LOADER:
+                return new CursorLoader(
+                        getActivity().getApplicationContext(),
+                        weatherForLocationUri,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+            default:
+                throw new UnsupportedOperationException("Unknown loader id: " + id);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        LogUtil.logMethodCalled();
+
+        switch(loader.getId()) {
+            case FORECAST_LOADER:
+                mForecastAdapter.swapCursor(data);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        LogUtil.logMethodCalled();
+
+        switch(loader.getId()) {
+            case FORECAST_LOADER:
+                mForecastAdapter.swapCursor(null);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
+        }
+    }
 }

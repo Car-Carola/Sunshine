@@ -2,67 +2,69 @@ package com.cadaloco.sunshine.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cadaloco.adapterlib.RecyclerViewCursorAdapter;
-import com.cadaloco.adapterlib.RecyclerViewCursorViewHolder;
 import com.cadaloco.sunshine.R;
+import com.cadaloco.sunshine.data.WeatherContract;
+import com.cadaloco.sunshine.utils.Utility;
 
-/**
- * Created by Carol on 22-Nov-16.
- */
+public class ForecastCursorAdapter extends CursorAdapter {
+   public ForecastCursorAdapter(Context context, Cursor c, int flags) {
+      super(context, c, flags);
+   }
 
-//RecyclerView Classes
-public class ForecastCursorAdapter extends RecyclerViewCursorAdapter<ForecastCursorAdapter.ForecastViewHolder> {
+   /**
+    * Prepare the weather high/lows for presentation.
+    */
+   private String formatHighLows(double high, double low) {
+      boolean isMetric = Utility.isMetric(mContext);
+      String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
+      return highLowStr;
+   }
 
-    /**
-     * Index of the name column.
-     */
-    private static final int NAME_INDEX = 1;
+   /*
+       This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
+       string.
+    */
+   private String convertCursorRowToUXFormat(Cursor cursor) {
+      // get row indices for our cursor
+      int idx_max_temp = cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP);
+      int idx_min_temp = cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP);
+      int idx_date = cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATE);
+      int idx_short_desc = cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC);
 
-    public ForecastCursorAdapter(Context context) {
-        super(context);
+      String highAndLow = formatHighLows(
+              cursor.getDouble(idx_max_temp),
+              cursor.getDouble(idx_min_temp));
 
-        setupCursorAdapter(null, 0, R.layout.list_item_forecast, false);
-    }
+      return Utility.formatDate(cursor.getLong(idx_date)) +
+              " - " + cursor.getString(idx_short_desc) +
+              " - " + highAndLow;
+   }
 
-    @Override
-    public ForecastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ForecastViewHolder(mCursorAdapter.newView(mContext, mCursorAdapter.getCursor(), parent));
-    }
+   /*
+       Remember that these views are reused as needed.
+    */
+   @Override
+   public View newView(Context context, Cursor cursor, ViewGroup parent) {
+      View view = LayoutInflater.from(context).inflate(R.layout.list_item_forecast, parent, false);
 
-    @Override
-    public void onBindViewHolder(ForecastViewHolder holder, int position) {
+      return view;
+   }
 
-        // Passing the binding operation to cursor loader
-        mCursorAdapter.getCursor().moveToPosition(position); //EDITED: added this line as suggested in the comments below, thanks :)
+   /*
+       This is where we fill-in the views with the contents of the cursor.
+    */
+   @Override
+   public void bindView(View view, Context context, Cursor cursor) {
+      // our view is pretty simple here --- just a text view
+      // we'll keep the UI functional with a simple (and slow!) binding.
 
-        // Set the ViewHolder
-        setViewHolder(holder);
-
-        // Bind this view
-        mCursorAdapter.bindView(holder.itemView, mContext, mCursorAdapter.getCursor());
-
-    }
-
-
-    public static class ForecastViewHolder extends RecyclerViewCursorViewHolder{
-
-        private final View mView;
-        private TextView forecast;
-
-        public ForecastViewHolder(final View itemView) {
-            super(itemView);
-            mView = itemView;
-
-            forecast = (TextView) itemView.findViewById(R.id.list_item_forecast_textView);
-
-        }
-        @Override
-        public void bindCursor(Cursor cursor) {
-            forecast.setText(cursor.getString(NAME_INDEX));
-        }
-    }
+      TextView tv = (TextView)view;
+      tv.setText(convertCursorRowToUXFormat(cursor));
+   }
 }
