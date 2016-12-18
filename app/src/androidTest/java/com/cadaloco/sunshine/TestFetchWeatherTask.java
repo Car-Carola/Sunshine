@@ -18,7 +18,6 @@ package com.cadaloco.sunshine;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
 
-import com.cadaloco.sunshine.adapters.FetchWeatherTask;
 import com.cadaloco.sunshine.data.WeatherContract;
 
 public class TestFetchWeatherTask extends AndroidTestCase{

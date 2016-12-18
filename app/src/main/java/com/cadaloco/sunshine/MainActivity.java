@@ -1,4 +1,4 @@
-package com.cadaloco.sunshine.activities;
+package com.cadaloco.sunshine;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,20 +9,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cadaloco.sunshine.R;
 import com.cadaloco.sunshine.utils.LogUtil;
+import com.cadaloco.sunshine.utils.Utility;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String SAVE_RESTORE_MAIN_FRAGMENT = "SAVE_RESTORE_MAIN_FRAGMENT";
+    //private static final String SAVE_RESTORE_MAIN_FRAGMENT = "SAVE_RESTORE_MAIN_FRAGMENT";
+     private final String FORECASTFRAGMENT_TAG = "FFTAG";
+
+    private String mLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
+                    .commit();
+        }
         LogUtil.logMethodCalled();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -76,4 +87,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+        // update the location in our second pane using the fragment manager
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            if ( null != ff ) {
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
+    }
 }

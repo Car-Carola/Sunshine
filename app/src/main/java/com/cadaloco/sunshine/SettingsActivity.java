@@ -1,4 +1,4 @@
-package com.cadaloco.sunshine.activities;
+package com.cadaloco.sunshine;
 
 
 import android.os.Bundle;
@@ -7,7 +7,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-import com.cadaloco.sunshine.R;
 import com.cadaloco.sunshine.utils.LogUtil;
 
 

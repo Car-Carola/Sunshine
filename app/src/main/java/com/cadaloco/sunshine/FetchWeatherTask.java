@@ -1,4 +1,4 @@
-package com.cadaloco.sunshine.adapters;
+package com.cadaloco.sunshine;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.format.Time;
 
-import com.cadaloco.sunshine.BuildConfig;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.data.WeatherContract.WeatherEntry;
 import com.cadaloco.sunshine.utils.LogUtil;

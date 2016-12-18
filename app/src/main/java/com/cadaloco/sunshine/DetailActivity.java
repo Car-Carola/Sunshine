@@ -1,13 +1,11 @@
-package com.cadaloco.sunshine.activities;
+package com.cadaloco.sunshine;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cadaloco.sunshine.R;
 import com.cadaloco.sunshine.utils.LogUtil;
 
 public class DetailActivity extends AppCompatActivity {
@@ -46,9 +44,4 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static Intent createIntent(Context context, String forecast) {
-        Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, forecast);
-        return intent;
-    }
 }

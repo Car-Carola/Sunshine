@@ -17,12 +17,15 @@ package com.cadaloco.sunshine.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 
+import com.cadaloco.sunshine.DetailFragment;
 import com.cadaloco.sunshine.R;
 
 import java.text.DateFormat;
 import java.util.Date;
+
 
 public class Utility {
   public static String getPreferredLocation(Context context) {
@@ -51,5 +54,21 @@ public class Utility {
   public static String formatDate(long dateInMillis) {
     Date date = new Date(dateInMillis);
     return DateFormat.getDateInstance().format(date);
+  }
+
+  public static String generateSimpleText(Cursor data, boolean isMetric) {
+    String dateString = Utility.formatDate(
+            data.getLong(DetailFragment.COL_WEATHER_DATE));
+
+    String weatherDescription =
+            data.getString(DetailFragment.COL_WEATHER_DESC);
+
+    String high = Utility.formatTemperature(
+            data.getDouble(DetailFragment.COL_WEATHER_MAX_TEMP), isMetric);
+
+    String low = Utility.formatTemperature(
+            data.getDouble(DetailFragment.COL_WEATHER_MIN_TEMP), isMetric);
+
+    return String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);
   }
 }
