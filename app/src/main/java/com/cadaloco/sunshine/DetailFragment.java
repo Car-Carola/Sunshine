@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.data.WeatherContract.WeatherEntry;
@@ -160,7 +159,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
                 TextView detailTextView = (TextView)getView().findViewById(R.id.tv_fd_forecast);
                 detailTextView.setText(mForecast);
-                Toast.makeText(getContext(), mForecast,Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), mForecast,Toast.LENGTH_LONG).show();
 
                 // If onCreateOptionsMenu has already happened, we need to update the share intent now.
                 if (mShareActionProvider != null) {
@@ -175,6 +174,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
      @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         LogUtil.logMethodCalled();
+         switch(loader.getId()) {
+             case DETAIL_LOADER:
+                 //loader = null;
+                 break;
+
+             default:
+                 throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
+         }
 
   }
 }

@@ -15,7 +15,7 @@ import com.cadaloco.sunshine.utils.Utility;
 public class MainActivity extends AppCompatActivity {
 
     //private static final String SAVE_RESTORE_MAIN_FRAGMENT = "SAVE_RESTORE_MAIN_FRAGMENT";
-     private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
 
     private String mLocation;
 

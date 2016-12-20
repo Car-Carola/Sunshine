@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Sunshine</string>
 
     <string name="action_refresh" translatable="false">Refresh</string>
@@ -21,5 +21,10 @@
     <string name="pref_temp_imperial">imperial Units</string>
     <string name="pref_temp_label_metric">Metric</string>
     <string name="pref_temp_label_imperial">Imperial</string>
+
+    <!-- Display Date and format -->
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="format_full_friendly_date"><xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
 
 </resources>

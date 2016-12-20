@@ -26,7 +26,8 @@ import com.cadaloco.sunshine.utils.Utility;
 public class ForecastFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    private static final int FORECAST_LOADER = 0;
+    private static final int FORECAST_LOADER_DB = 0;
+    private static final int FORECAST_LOADER_WEB = 1;
 
     // For the forecast view we're showing only a small subset of the stored data.
     // Specify the columns we need.
@@ -60,8 +61,8 @@ public class ForecastFragment extends Fragment
     protected static final int COL_COORD_LAT = 7;
     protected static final int COL_COORD_LONG = 8;
 
-    //private RecyclerViewCursorAdapter mForecastAdapter;
-    private ForecastAdapter mForecastAdapter;
+    private RecyclerAdapter mForecastAdapter;
+    //private ForecastAdapter mForecastAdapter;
 
     private RecyclerView mRecyclerView;
 
@@ -92,7 +93,8 @@ public class ForecastFragment extends Fragment
 
         //mForecastAdapter = new ForecastRecyclerViewAdapter(getActivity());
 
-        mForecastAdapter = new ForecastAdapter(getActivity());
+        //mForecastAdapter = new ForecastAdapter(getActivity());
+        mForecastAdapter = new RecyclerAdapter(getActivity());
         mRecyclerView.setAdapter(mForecastAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(
@@ -141,21 +143,24 @@ public class ForecastFragment extends Fragment
     private void updateWeather() {
         LogUtil.logMethodCalled();
 
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity().getApplicationContext());
+       /* FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity().getApplicationContext());
         String location = Utility.getPreferredLocation(getActivity());
-        weatherTask.execute(location);
+        weatherTask.execute(location);*/
+        Loader<Cursor> cursorLoader = getLoaderManager().initLoader(FORECAST_LOADER_WEB, null, this);
+        cursorLoader.forceLoad();
+
     }
 
     void onLocationChanged( ) {
         LogUtil.logMethodCalled();
         updateWeather();
-        getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        getLoaderManager().restartLoader(FORECAST_LOADER_DB, null, this);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         LogUtil.logMethodCalled();
-        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        getLoaderManager().initLoader(FORECAST_LOADER_DB, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -165,12 +170,12 @@ public class ForecastFragment extends Fragment
 
         String locationSetting = Utility.getPreferredLocation(getActivity());
 
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                locationSetting, System.currentTimeMillis());
-
         switch(id) {
-            case FORECAST_LOADER:
+            case FORECAST_LOADER_DB:
+
+                String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+                Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                        locationSetting, System.currentTimeMillis());
                 return new CursorLoader(
                         getActivity().getApplicationContext(),
                         weatherForLocationUri,
@@ -179,20 +184,87 @@ public class ForecastFragment extends Fragment
                         null,
                         sortOrder
                 );
+            case FORECAST_LOADER_WEB:
+/*
+                return new AsyncTaskLoader<Cursor>(getActivity()) {
+
+                  //  Cursor curser;
+                    @Override
+                    public Cursor loadInBackground() {
+                        LogUtil.logMethodCalled();
+
+                        String location ;
+
+                        String forecastJsonStr = null;
+                        URL url = null;
+                        OkHttpClient client = null;
+
+                        String format = "json";
+                        String units = "metric";
+                        int numDays = 12;
+                        try {
+                            final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+                            final String QUERY_PARAM = "q";
+                            final String FORMAT_PARAM = "mode";
+                            final String UNITS_PARAM = "units";
+                            final String DAYS_PARAM = "cnt";
+                            final String APPID_PARAM = "APPID";
+
+                            location = Utility.getPreferredLocation(getActivity());
+
+                            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                                    .appendQueryParameter(QUERY_PARAM, location)
+                                    .appendQueryParameter(FORMAT_PARAM, format)
+                                    .appendQueryParameter(UNITS_PARAM, units)
+                                    .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                                    .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                                    .build();
+
+                            url = new URL(builtUri.toString());
+
+                            LogUtil.v(builtUri.toString());
+
+                            client = new OkHttpClient();
+                            Request request = new Request.Builder().url(url).build();
+                            Response response = client.newCall(request).execute();
+                            forecastJsonStr = response.body().string();
+                            LogUtil.v(forecastJsonStr);
+
+                            Utility.getWeatherDataFromJson(getContext(),forecastJsonStr, location);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            LogUtil.e("IOException: " + url.toString() + " " + e.getMessage());
+                        } catch (JSONException e) {
+                            LogUtil.e("Error getting JSON from: " + url.toString() + " " + e.getMessage());
+                            e.printStackTrace();
+                        }
+
+                        return null;
+                    }
+
+                };
+*/
+                return new FetchWeatherTaskLoader<Cursor>(getActivity(), locationSetting);
+
             default:
                 throw new UnsupportedOperationException("Unknown loader id: " + id);
         }
     }
+
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         LogUtil.logMethodCalled();
 
         switch(loader.getId()) {
-            case FORECAST_LOADER:
+            case FORECAST_LOADER_DB:
                 mForecastAdapter.swapCursor(data);
                 break;
+            case FORECAST_LOADER_WEB:
+                break;
             default:
+
                 throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
         }
     }
@@ -202,9 +274,10 @@ public class ForecastFragment extends Fragment
         LogUtil.logMethodCalled();
 
         switch(loader.getId()) {
-            case FORECAST_LOADER:
+            case FORECAST_LOADER_DB:
                 mForecastAdapter.swapCursor(null);
                 break;
+
             default:
                 throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
         }
