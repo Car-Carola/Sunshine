@@ -22,7 +22,7 @@ import com.cadaloco.sunshine.utils.Utility;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerViewHolder> {
 
     private static final int VIEW_TYPE_TODAY = 0;
-    private static final int VIEW_TYPE_FUTURE_DAY = 2;
+    private static final int VIEW_TYPE_FUTURE_DAY = 1;
     private Cursor mCursor;
 
     public RecyclerAdapter(Context mContext) {
@@ -32,11 +32,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     //RecyclerView Methods
     @Override
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LogUtil.logMethodCalled();
+        LogUtil.logMethodCalled();
 
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_forecast, parent, false);
+        View view = null;
 
-            return new RecyclerViewHolder(view);
+        switch (viewType){
+            case VIEW_TYPE_TODAY:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_forecast_today, parent, false);
+                break;
+            case VIEW_TYPE_FUTURE_DAY:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_forecast, parent, false);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown VIEW TYPE: " + viewType);
+
+        }
+
+        return new RecyclerViewHolder(view);
         }
 
     @Override
@@ -108,7 +120,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             LogUtil.logMethodCalled();
             mView = itemView;
 
-            //mForecast = (TextView) itemView.findViewById(R.id.list_item_forecast_textView);
             mIcon = (ImageView)itemView.findViewById(R.id.list_item_icon);
             date = (TextView) itemView.findViewById(R.id.list_item_date_textview);
             description = (TextView)itemView.findViewById(R.id.list_item_forecast_textview);
@@ -116,46 +127,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             low = (TextView) itemView.findViewById(R.id.list_item_low_textview);
 
 
-            //isMetric = Utility.isMetric(itemView.getContext());
-
-            mView.setOnClickListener(new View.OnClickListener() {
+            mListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     LogUtil.logMethodCalled();
                     Context context = view.getContext();
+
                     String locationSetting = Utility.getPreferredLocation(context);
-                    //long dateInMillis = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
 
                     Uri uri = WeatherContract.WeatherEntry
                             .buildWeatherLocationWithDate(
                                     locationSetting,
                                     dateValue);
+
                     Intent intent = new Intent(context, DetailActivity.class).setData(uri);
-//                        String txt = Utility.generateSimpleText(cursor, Utility.isMetric(context));
-                    //Toast.makeText(context, uri.toString() + " was clicked!\n" +funnyText, Toast.LENGTH_SHORT).show();
 
                     context.startActivity(intent);
                 }
-            });
+            };
+            mView.setOnClickListener(mListener);
 
         }
     }
-
-    //Text Helper Methods
-    private String convertCursorRowToUXFormat(Cursor cursor, boolean isMetric) {
-
-        String highAndLow = formatHighLows(
-                cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
-                cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric);
-
-        return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
-                " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
-                " - " + highAndLow;
-    }
-
-    private String formatHighLows(double high, double low, boolean isMetric) {
-        String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
-        return highLowStr;
-    }
-
 }
