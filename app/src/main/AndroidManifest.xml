@@ -37,9 +37,7 @@
 
         <provider
             android:authorities="com.cadaloco.sunshine"
-            android:name=".data.WeatherProvider"
-            android:exported="true"
-            android:enabled="true"/>
+            android:name=".data.WeatherProvider" />
     </application>
 
 </manifest>

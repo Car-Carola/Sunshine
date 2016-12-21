@@ -23,18 +23,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/list_item_date_textview"
-                android:text="Tommorrow" />
+                android:id="@+id/list_item_date_textview" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/list_item_high_textview"
-                android:text="21" />
+                android:id="@+id/list_item_high_textview" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/list_item_low_textview"
-                android:text="8" />
+                android:id="@+id/list_item_low_textview" />
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
@@ -47,13 +44,11 @@
     <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher"
             android:id="@+id/list_item_icon" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/list_item_forecast_textview"
-            android:text="Clear" />
+            android:id="@+id/list_item_forecast_textview" />
     </LinearLayout>
 
 

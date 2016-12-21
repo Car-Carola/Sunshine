@@ -7,8 +7,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import com.cadaloco.sunshine.utils.LogUtil;
 import com.cadaloco.sunshine.utils.Utility;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.net.URL;
 
@@ -22,7 +20,7 @@ import okhttp3.Response;
 
 public class FetchWeatherTaskLoader<Cursor> extends AsyncTaskLoader<Cursor> {
 
-    private String mLocation;
+    private final String mLocation;
 
     public FetchWeatherTaskLoader(Context context, String location) {
         super(context);
@@ -75,7 +73,7 @@ public class FetchWeatherTaskLoader<Cursor> extends AsyncTaskLoader<Cursor> {
         } catch (IOException e) {
             e.printStackTrace();
             LogUtil.e("IOException: " + url.toString() + " " + e.getMessage());
-        } catch (JSONException e) {
+        } catch (Exception e) {
             LogUtil.e("Error getting JSON from: " + url.toString() + " " + e.getMessage());
             e.printStackTrace();
         }

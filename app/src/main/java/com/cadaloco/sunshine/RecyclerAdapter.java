@@ -34,21 +34,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LogUtil.logMethodCalled();
 
-        View view = null;
+        int layoutId = -1;
 
         switch (viewType){
             case VIEW_TYPE_TODAY:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_forecast_today, parent, false);
+                layoutId = R.layout.list_item_forecast_today;
                 break;
             case VIEW_TYPE_FUTURE_DAY:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_forecast, parent, false);
+                layoutId = R.layout.list_item_forecast;
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown VIEW TYPE: " + viewType);
 
         }
 
-        return new RecyclerViewHolder(view);
+        return new RecyclerViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false));
         }
 
     @Override
@@ -62,25 +62,46 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         mCursor.moveToPosition(position);
 
-        holder.dateValue = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
+        holder.mDateValue = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
 
 
-        boolean isMetric = Utility.isMetric(holder.mView.getContext());
+        Context context = holder.mView.getContext();
+        boolean isMetric = Utility.isMetric(context);
         //String text = convertCursorRowToUXFormat(mCursor, isMetric);
 
-        holder.description.setText(mCursor.getString(ForecastFragment.COL_WEATHER_DESC));
+        holder.mDescription.setText(mCursor.getString(ForecastFragment.COL_WEATHER_DESC));
         long dateInMillis = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
 
-        String date = Utility.getFriendlyDayString(holder.mView.getContext(), dateInMillis);
-        holder.date.setText(date);
-        //holder.date.setText(Utility.formatDate(mCursor.getLong(ForecastFragment.COL_WEATHER_DATE)));
-        String highTemp = Utility.formatTemperature(mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP,isMetric);
-        holder.high.setText(highTemp);
-        String lowTemp = Utility.formatTemperature(mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP,isMetric);
-        holder.low.setText(lowTemp);
-        int resourceId = mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
-        //TODO set weather image icon
-        holder.mIcon.setImageResource(R.mipmap.ic_launcher);
+        String date = Utility.getFriendlyDayString(context, dateInMillis);
+        holder.mDate.setText(date);
+
+        String highTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP,isMetric);
+        holder.mHigh.setText(highTemp);
+
+        String lowTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP,isMetric);
+        holder.mLow.setText(lowTemp);
+
+        int weatherId = mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+        int viewType = getItemViewType(position);
+        int imageResource = -1;
+
+        switch (viewType) {
+            case VIEW_TYPE_TODAY: {
+                // Get weather icon
+                imageResource = Utility.getArtResourceForWeatherCondition(
+                        mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID));
+                break;
+            }
+            case VIEW_TYPE_FUTURE_DAY: {
+                // Get weather icon
+                imageResource = Utility.getIconResourceForWeatherCondition(
+                        mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID));
+                break;
+            }
+        }
+
+        holder.mIcon.setImageResource(imageResource);
+        //holder.mIcon.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
     }
 
     @Override
@@ -105,15 +126,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         //Views
         private final View mView;
-        private ImageView mIcon;
-        private TextView date;
-        private TextView description;
-        private TextView high;
-        private TextView low;
+        private final ImageView mIcon;
+        private final TextView mDate;
+        private final TextView mDescription;
+        private final TextView mHigh;
+        private final TextView mLow;
 
-        public long dateValue;
+        private long mDateValue;
 
-        public View.OnClickListener mListener;
+        private final View.OnClickListener mListener;
 
         public RecyclerViewHolder(View itemView) {
             super(itemView);
@@ -121,10 +142,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             mView = itemView;
 
             mIcon = (ImageView)itemView.findViewById(R.id.list_item_icon);
-            date = (TextView) itemView.findViewById(R.id.list_item_date_textview);
-            description = (TextView)itemView.findViewById(R.id.list_item_forecast_textview);
-            high = (TextView) itemView.findViewById(R.id.list_item_high_textview);
-            low = (TextView) itemView.findViewById(R.id.list_item_low_textview);
+            mDate = (TextView) itemView.findViewById(R.id.list_item_date_textview);
+            mDescription = (TextView)itemView.findViewById(R.id.list_item_forecast_textview);
+            mHigh = (TextView) itemView.findViewById(R.id.list_item_high_textview);
+            mLow = (TextView) itemView.findViewById(R.id.list_item_low_textview);
 
 
             mListener = new View.OnClickListener() {
@@ -138,7 +159,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                     Uri uri = WeatherContract.WeatherEntry
                             .buildWeatherLocationWithDate(
                                     locationSetting,
-                                    dateValue);
+                                    mDateValue);
 
                     Intent intent = new Intent(context, DetailActivity.class).setData(uri);
 
