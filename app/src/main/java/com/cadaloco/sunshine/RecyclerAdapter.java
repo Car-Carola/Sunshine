@@ -1,7 +1,6 @@
 package com.cadaloco.sunshine;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +14,8 @@ import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.utils.LogUtil;
 import com.cadaloco.sunshine.utils.Utility;
 
+import static com.cadaloco.sunshine.ForecastFragment.COL_WEATHER_DATE;
+
 /**
  * Created by Carol on 19-Dec-16.
  */
@@ -23,10 +24,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
+
+    /*
+ * Below, we've defined an interface to handle clicks on items within this Adapter. In the
+ * constructor of our ForecastAdapter, we receive an instance of a class that has implemented
+ * said interface. We store that instance in this variable to call the onClick method whenever
+ * an item is clicked in the list.
+ */
+    final private ForecastAdapterOnClickHandler mClickHandler;
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface ForecastAdapterOnClickHandler {
+        void onItemSelected(Uri contentUri);
+    }
+
     private Cursor mCursor;
 
-    public RecyclerAdapter(Context mContext) {
+    public RecyclerAdapter(ForecastAdapterOnClickHandler clickHandler) {
         LogUtil.logMethodCalled();
+        mClickHandler = clickHandler;
+
     }
 
     //RecyclerView Methods
@@ -36,7 +55,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         int layoutId = -1;
 
-        switch (viewType){
+        switch (viewType) {
             case VIEW_TYPE_TODAY:
                 layoutId = R.layout.list_item_forecast_today;
                 break;
@@ -49,7 +68,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         return new RecyclerViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false));
-        }
+    }
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
@@ -62,7 +81,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         mCursor.moveToPosition(position);
 
-        holder.mDateValue = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
+        holder.mDateValue = mCursor.getLong(COL_WEATHER_DATE);
 
 
         Context context = holder.mView.getContext();
@@ -70,15 +89,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         //String text = convertCursorRowToUXFormat(mCursor, isMetric);
 
         holder.mDescription.setText(mCursor.getString(ForecastFragment.COL_WEATHER_DESC));
-        long dateInMillis = mCursor.getLong(ForecastFragment.COL_WEATHER_DATE);
+        long dateInMillis = mCursor.getLong(COL_WEATHER_DATE);
 
         String date = Utility.getFriendlyDayString(context, dateInMillis);
         holder.mDate.setText(date);
 
-        String highTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP,isMetric);
+        String highTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP, isMetric);
         holder.mHigh.setText(highTemp);
 
-        String lowTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP,isMetric);
+        String lowTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP, isMetric);
         holder.mLow.setText(lowTemp);
 
         int weatherId = mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
@@ -122,7 +141,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         notifyDataSetChanged();
     }
 
-    public class RecyclerViewHolder extends RecyclerView.ViewHolder{
+    public class RecyclerViewHolder extends RecyclerView.ViewHolder  {
 
         //Views
         private final View mView;
@@ -134,21 +153,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         private long mDateValue;
 
-        private final View.OnClickListener mListener;
 
         public RecyclerViewHolder(View itemView) {
+
             super(itemView);
             LogUtil.logMethodCalled();
             mView = itemView;
 
-            mIcon = (ImageView)itemView.findViewById(R.id.list_item_icon);
+            mIcon = (ImageView) itemView.findViewById(R.id.list_item_icon);
             mDate = (TextView) itemView.findViewById(R.id.list_item_date_textview);
-            mDescription = (TextView)itemView.findViewById(R.id.list_item_forecast_textview);
+            mDescription = (TextView) itemView.findViewById(R.id.list_item_forecast_textview);
             mHigh = (TextView) itemView.findViewById(R.id.list_item_high_textview);
             mLow = (TextView) itemView.findViewById(R.id.list_item_low_textview);
 
-
-            mListener = new View.OnClickListener() {
+            mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     LogUtil.logMethodCalled();
@@ -156,18 +174,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
                     String locationSetting = Utility.getPreferredLocation(context);
 
-                    Uri uri = WeatherContract.WeatherEntry
-                            .buildWeatherLocationWithDate(
-                                    locationSetting,
-                                    mDateValue);
-
-                    Intent intent = new Intent(context, DetailActivity.class).setData(uri);
-
-                    context.startActivity(intent);
+                    Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                            locationSetting,
+                            mDateValue);
+                    mClickHandler.onItemSelected(uri);
                 }
-            };
-            mView.setOnClickListener(mListener);
-
+            });
         }
+
     }
 }

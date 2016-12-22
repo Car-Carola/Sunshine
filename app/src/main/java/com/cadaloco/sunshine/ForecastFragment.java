@@ -66,6 +66,18 @@ public class ForecastFragment extends Fragment
 
     private RecyclerView mRecyclerView;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        void onItemSelected(Uri dateUri);
+    }
+
     public ForecastFragment() {
     }
 
@@ -94,7 +106,7 @@ public class ForecastFragment extends Fragment
         //mForecastAdapter = new ForecastRecyclerViewAdapter(getActivity());
 
         //mForecastAdapter = new ForecastAdapter(getActivity());
-        mForecastAdapter = new RecyclerAdapter(getActivity());
+        mForecastAdapter = new RecyclerAdapter((RecyclerAdapter.ForecastAdapterOnClickHandler) getActivity());
         mRecyclerView.setAdapter(mForecastAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(

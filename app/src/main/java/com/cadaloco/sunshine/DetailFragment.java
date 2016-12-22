@@ -2,15 +2,14 @@ package com.cadaloco.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,11 +28,14 @@ import static android.R.attr.description;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+    static final String DETAIL_URI = "URI";
+
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
     private static final int DETAIL_LOADER = 0;
 
     private ShareActionProvider mShareActionProvider;
     private String mForecast;
+    private Uri mUri;
 
     private static final String[] DETAIL_COLUMNS = {
             WeatherEntry.TABLE_NAME + "." + WeatherEntry._ID,
@@ -84,6 +86,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         LogUtil.logMethodCalled();
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+        }
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
         mIconView = (ImageView) view.findViewById(R.id.detail_icon);
@@ -96,20 +102,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mWindView = (TextView) view.findViewById(R.id.detail_wind_textview);
         mPressureView = (TextView) view.findViewById(R.id.detail_pressure_textview);
 
-        extractToolbar(view);
-
         return view;
     }
 
-    private void extractToolbar(View view) {
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.tb_fd);
-        if (toolbar != null) {
-            toolbar.setTitle(R.string.app_name);
-            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
-            //toolbar.setLogo(R.mipmap.ic_launcher);
-            ((AppCompatActivity)getActivity()).setSupportActionBar( toolbar);
-        }
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -141,32 +136,40 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         super.onActivityCreated(savedInstanceState);
     }
 
-
+    public void onLocationChanged(String newLocation) {
+// replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         LogUtil.logMethodCalled();
 
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
-        }
+        if ( null != mUri ) {
 
-        switch(id) {
-            case DETAIL_LOADER:
-                // Now create and return a CursorLoader that will take care of
-                // creating a Cursor for the data being displayed.
-                return new CursorLoader(
-                        getActivity(),
-                        intent.getData(),
-                        DETAIL_COLUMNS,
-                        null,
-                        null,
-                        null
-                );
-            default:
-                throw new UnsupportedOperationException("Unknown loader id: " + id);
+            switch (id) {
+                case DETAIL_LOADER:
+                    // Now create and return a CursorLoader that will take care of
+                    // creating a Cursor for the data being displayed.
+                    return new CursorLoader(
+                            getActivity(),
+                            mUri,
+                            DETAIL_COLUMNS,
+                            null,
+                            null,
+                            null
+                    );
+                default:
+                    throw new UnsupportedOperationException("Unknown loader id: " + id);
+            }
         }
+        return null;
     }
 
     @Override
