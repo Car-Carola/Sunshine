@@ -76,6 +76,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mWindView;
     private TextView mPressureView;
 
+/*
+    private Compass mCompass;
+*/
+
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -101,6 +105,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mHumidityView = (TextView) view.findViewById(R.id.detail_humidity_textview);
         mWindView = (TextView) view.findViewById(R.id.detail_wind_textview);
         mPressureView = (TextView) view.findViewById(R.id.detail_pressure_textview);
+
+/*
+        mCompass = (Compass)view.findViewById(R.id.mycompass);
+*/
 
         return view;
     }
@@ -197,7 +205,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mFriendlyDateView.setText(friendlyDateText);
                 mDateView.setText(dateText);
 
-                mDescriptionView.setText(data.getString(ForecastFragment.COL_WEATHER_DESC));
+                String descriptionText = data.getString(ForecastFragment.COL_WEATHER_DESC);
+                mDescriptionView.setText(descriptionText);
+                mIconView.setContentDescription(descriptionText);
 
                 String highTemp = Utility.formatTemperature(getActivity(),data, COL_WEATHER_MAX_TEMP, isMetric);
                 mHighTempView.setText(highTemp);
@@ -215,6 +225,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
                 float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
                 mWindView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
+
+/*
+                mCompass.update(windDirStr);
+*/
 
                 float pressure = data.getFloat(COL_WEATHER_PRESSURE);
                 mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));

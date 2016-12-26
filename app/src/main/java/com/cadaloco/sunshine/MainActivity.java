@@ -36,13 +36,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
                         .commit();
-                /*getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_forecast, new ForecastFragment(), FORECASTFRAGMENT_TAG)
-                        .commit();*/
+
             }
         }else{
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
+
+        ForecastFragment forecastFragment =  ((ForecastFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_forecast));
+        forecastFragment.setUseTodayLayout(!mTwoPane);
     }
 
     @Override
@@ -104,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
-            //ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
             ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
             if ( null != ff ) {
                 ff.onLocationChanged();
@@ -137,12 +139,5 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
                     .setData(contentUri);
             startActivity(intent);
         }
-
-        /*        Intent weatherDetailIntent = new Intent(MainActivity.this, DetailActivity.class);
-        String locationSetting = Utility.getPreferredLocation(this);
-
-        Uri uriForDateClicked = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting, date);
-        weatherDetailIntent.setData(uriForDateClicked);
-        startActivity(weatherDetailIntent);*/
     }
 }

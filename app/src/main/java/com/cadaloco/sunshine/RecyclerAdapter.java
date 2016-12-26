@@ -25,6 +25,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
 
+    private boolean mUseTodayLayout = true;
     /*
  * Below, we've defined an interface to handle clicks on items within this Adapter. In the
  * constructor of our ForecastAdapter, we receive an instance of a class that has implemented
@@ -88,7 +89,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         boolean isMetric = Utility.isMetric(context);
         //String text = convertCursorRowToUXFormat(mCursor, isMetric);
 
-        holder.mDescription.setText(mCursor.getString(ForecastFragment.COL_WEATHER_DESC));
+        String descriptionText = mCursor.getString(ForecastFragment.COL_WEATHER_DESC);
+        holder.mDescription.setText(descriptionText);
         long dateInMillis = mCursor.getLong(COL_WEATHER_DATE);
 
         String date = Utility.getFriendlyDayString(context, dateInMillis);
@@ -120,12 +122,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         holder.mIcon.setImageResource(imageResource);
+        holder.mIcon.setContentDescription(descriptionText);
         //holder.mIcon.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -177,6 +184,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                     Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             locationSetting,
                             mDateValue);
+
+                    view.setSelected(true);
+
                     mClickHandler.onItemSelected(uri);
                 }
             });

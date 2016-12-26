@@ -7,11 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,21 +59,14 @@ public class ForecastFragment extends Fragment
     protected static final int COL_COORD_LONG = 8;
 
     private RecyclerAdapter mForecastAdapter;
-    //private ForecastAdapter mForecastAdapter;
 
     private RecyclerView mRecyclerView;
 
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
-        void onItemSelected(Uri dateUri);
-    }
+    private int mPosition = RecyclerView.NO_POSITION;
+
+    private static final String SELECTED_KEY = "selected_position";
+
+    private boolean mUseTodayLayout;
 
     public ForecastFragment() {
     }
@@ -97,15 +87,18 @@ public class ForecastFragment extends Fragment
 
         setupRecyclerView(rootView);
 
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
         return rootView;
     }
 
     private void setupRecyclerView(View view) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_forecast);
 
-        //mForecastAdapter = new ForecastRecyclerViewAdapter(getActivity());
-
-        //mForecastAdapter = new ForecastAdapter(getActivity());
         mForecastAdapter = new RecyclerAdapter((RecyclerAdapter.ForecastAdapterOnClickHandler) getActivity());
         mRecyclerView.setAdapter(mForecastAdapter);
 
@@ -113,9 +106,11 @@ public class ForecastFragment extends Fragment
                 getActivity(),
                 LinearLayoutManager.VERTICAL,
                 false));
-
+/*
         mRecyclerView.addItemDecoration(new DividerItemDecoration(
-                getActivity(), LinearLayoutManager.VERTICAL));
+                getActivity(), LinearLayoutManager.VERTICAL));*/
+
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
     }
 
     //menu
@@ -128,23 +123,8 @@ public class ForecastFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            //layout manager
-            case R.id.vertical_lm:
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-                return true;
-            case R.id.horizontal_lm:
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-                return true;
-            case R.id.grid_lm:
-                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-                return true;
-            case R.id.staggered_lm:
-                mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
-                return true;
-
             case R.id.action_refresh: {
                 updateWeather();
-
                 return true;
             }
            default:
@@ -175,6 +155,16 @@ public class ForecastFragment extends Fragment
         getLoaderManager().initLoader(FORECAST_LOADER_DB, null, this);
         super.onActivityCreated(savedInstanceState);
     }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != RecyclerView.NO_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -197,66 +187,7 @@ public class ForecastFragment extends Fragment
                         sortOrder
                 );
             case FORECAST_LOADER_WEB:
-/*
-                return new AsyncTaskLoader<Cursor>(getActivity()) {
 
-                  //  Cursor curser;
-                    @Override
-                    public Cursor loadInBackground() {
-                        LogUtil.logMethodCalled();
-
-                        String location ;
-
-                        String forecastJsonStr = null;
-                        URL url = null;
-                        OkHttpClient client = null;
-
-                        String format = "json";
-                        String units = "metric";
-                        int numDays = 12;
-                        try {
-                            final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                            final String QUERY_PARAM = "q";
-                            final String FORMAT_PARAM = "mode";
-                            final String UNITS_PARAM = "units";
-                            final String DAYS_PARAM = "cnt";
-                            final String APPID_PARAM = "APPID";
-
-                            location = Utility.getPreferredLocation(getActivity());
-
-                            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                                    .appendQueryParameter(QUERY_PARAM, location)
-                                    .appendQueryParameter(FORMAT_PARAM, format)
-                                    .appendQueryParameter(UNITS_PARAM, units)
-                                    .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                                    .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
-                                    .build();
-
-                            url = new URL(builtUri.toString());
-
-                            LogUtil.v(builtUri.toString());
-
-                            client = new OkHttpClient();
-                            Request request = new Request.Builder().url(url).build();
-                            Response response = client.newCall(request).execute();
-                            forecastJsonStr = response.body().string();
-                            LogUtil.v(forecastJsonStr);
-
-                            Utility.getWeatherDataFromJson(getContext(),forecastJsonStr, location);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            LogUtil.e("IOException: " + url.toString() + " " + e.getMessage());
-                        } catch (JSONException e) {
-                            LogUtil.e("Error getting JSON from: " + url.toString() + " " + e.getMessage());
-                            e.printStackTrace();
-                        }
-
-                        return null;
-                    }
-
-                };
-*/
                 return new FetchWeatherTaskLoader<Cursor>(getActivity(), locationSetting);
 
             default:
@@ -272,6 +203,11 @@ public class ForecastFragment extends Fragment
         switch(loader.getId()) {
             case FORECAST_LOADER_DB:
                 mForecastAdapter.swapCursor(data);
+                if (mPosition == RecyclerView.NO_POSITION)
+                    mPosition = 0;
+                mRecyclerView.smoothScrollToPosition(mPosition);
+
+
                 break;
             case FORECAST_LOADER_WEB:
                 break;
@@ -289,9 +225,17 @@ public class ForecastFragment extends Fragment
             case FORECAST_LOADER_DB:
                 mForecastAdapter.swapCursor(null);
                 break;
-
+            case FORECAST_LOADER_WEB:
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown loader id: " + loader.getId());
+        }
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
+        if (mForecastAdapter != null) {
+            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
         }
     }
 }
