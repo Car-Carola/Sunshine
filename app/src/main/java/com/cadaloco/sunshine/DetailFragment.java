@@ -22,7 +22,8 @@ import android.widget.TextView;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.data.WeatherContract.WeatherEntry;
 import com.cadaloco.sunshine.utils.LogUtil;
-import com.cadaloco.sunshine.utils.Utility;
+import com.cadaloco.sunshine.utils.SunshineDateUtils;
+import com.cadaloco.sunshine.utils.SunshineWeatherUtils;
 
 import static android.R.attr.description;
 
@@ -191,17 +192,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         switch(loader.getId()) {
             case DETAIL_LOADER:
 
-                boolean isMetric = Utility.isMetric(getContext());
+                boolean isMetric = SunshineWeatherUtils.isMetric(getContext());
 
                 int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
-                mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+                mIconView.setImageResource(SunshineWeatherUtils.getArtResourceForWeatherCondition(weatherId));
 
                 mDateView.setText(data.getString(COL_WEATHER_DATE));
 
                 // Read date from cursor and update views for day of week and date
                 long date = data.getLong(COL_WEATHER_DATE);
-                String friendlyDateText = Utility.getDayName(getActivity(), date);
-                String dateText = Utility.getFormattedMonthDay(getActivity(), date);
+                String friendlyDateText = SunshineDateUtils.getDayName(getActivity(), date);
+                String dateText = SunshineDateUtils.getFormattedMonthDay(getActivity(), date);
                 mFriendlyDateView.setText(friendlyDateText);
                 mDateView.setText(dateText);
 
@@ -209,10 +210,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mDescriptionView.setText(descriptionText);
                 mIconView.setContentDescription(descriptionText);
 
-                String highTemp = Utility.formatTemperature(getActivity(),data, COL_WEATHER_MAX_TEMP, isMetric);
+                String highTemp = SunshineWeatherUtils.formatTemperature(getActivity(),data, COL_WEATHER_MAX_TEMP, isMetric);
                 mHighTempView.setText(highTemp);
 
-                String lowTemp = Utility.formatTemperature(getActivity(),data, COL_WEATHER_MIN_TEMP, isMetric);
+                String lowTemp = SunshineWeatherUtils.formatTemperature(getActivity(),data, COL_WEATHER_MIN_TEMP, isMetric);
                 mLowTempView.setText(lowTemp);
 
                 float humidity = data.getFloat(COL_WEATHER_HUMIDITY);
@@ -224,7 +225,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 // Read wind speed and direction from cursor and update view
                 float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
                 float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
-                mWindView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
+                mWindView.setText(SunshineWeatherUtils.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
 
 /*
                 mCompass.update(windDirStr);

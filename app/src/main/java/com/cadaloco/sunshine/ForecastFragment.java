@@ -17,8 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cadaloco.sunshine.data.WeatherContract;
+import com.cadaloco.sunshine.sync.SunshineSyncTask;
 import com.cadaloco.sunshine.utils.LogUtil;
-import com.cadaloco.sunshine.utils.Utility;
+import com.cadaloco.sunshine.utils.SunshineWeatherUtils;
 
 public class ForecastFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -140,6 +141,7 @@ public class ForecastFragment extends Fragment
         weatherTask.execute(location);*/
         Loader<Cursor> cursorLoader = getLoaderManager().initLoader(FORECAST_LOADER_WEB, null, this);
         cursorLoader.forceLoad();
+       // SunshineSyncTask.syncWeather(getContext());
 
     }
 
@@ -170,7 +172,7 @@ public class ForecastFragment extends Fragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         LogUtil.logMethodCalled();
 
-        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String locationSetting = SunshineWeatherUtils.getPreferredLocation(getActivity());
 
         switch(id) {
             case FORECAST_LOADER_DB:
@@ -188,7 +190,7 @@ public class ForecastFragment extends Fragment
                 );
             case FORECAST_LOADER_WEB:
 
-                return new FetchWeatherTaskLoader<Cursor>(getActivity(), locationSetting);
+                return new SunshineSyncTask<Cursor>(getActivity());
 
             default:
                 throw new UnsupportedOperationException("Unknown loader id: " + id);

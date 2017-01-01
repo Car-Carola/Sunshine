@@ -19,7 +19,8 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.format.Time;
+
+import com.cadaloco.sunshine.utils.SunshineDateUtils;
 
 /**
  * Defines table and column names for the weather database.
@@ -40,15 +41,6 @@ public class WeatherContract {
 
   public static final String PATH_WEATHER = "weather";
   public static final String PATH_LOCATION = "location";
-
-  // the database to the start of the the Julian day at UTC.
-  public static long normalizeDate(long startDate) {
-    // normalize the start date to the beginning of the (UTC) day
-    Time time = new Time();
-    time.set(startDate);
-    int julianDay = Time.getJulianDay(startDate, time.gmtoff);
-    return time.setJulianDay(julianDay);
-  }
 
   /*
       Inner class that defines the table contents of the location table
@@ -132,14 +124,14 @@ public class WeatherContract {
 
     public static Uri buildWeatherLocationWithStartDate(
             String locationSetting, long startDate) {
-      long normalizedDate = normalizeDate(startDate);
+      long normalizedDate = SunshineDateUtils.normalizeDate(startDate);
       return CONTENT_URI.buildUpon().appendPath(locationSetting)
               .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
     }
 
     public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
       return CONTENT_URI.buildUpon().appendPath(locationSetting)
-              .appendPath(Long.toString(normalizeDate(date))).build();
+              .appendPath(Long.toString(SunshineDateUtils.normalizeDate(date))).build();
     }
 
     public static String getLocationSettingFromUri(Uri uri) {

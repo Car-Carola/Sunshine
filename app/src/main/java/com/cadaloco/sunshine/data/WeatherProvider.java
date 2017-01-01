@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import com.cadaloco.sunshine.utils.SunshineDateUtils;
+
 /**
  * Created by Carol on 04-Dec-16.
  */
@@ -266,7 +268,7 @@ public class WeatherProvider extends ContentProvider {
         // normalize the date value
         if (values.containsKey(WeatherContract.WeatherEntry.COLUMN_DATE)) {
             long dateValue = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
-            values.put(WeatherContract.WeatherEntry.COLUMN_DATE, WeatherContract.normalizeDate(dateValue));
+            values.put(WeatherContract.WeatherEntry.COLUMN_DATE, SunshineDateUtils.normalizeDate(dateValue));
         }
     }
 

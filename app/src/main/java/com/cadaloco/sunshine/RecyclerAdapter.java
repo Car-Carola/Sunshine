@@ -12,7 +12,8 @@ import android.widget.TextView;
 
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.utils.LogUtil;
-import com.cadaloco.sunshine.utils.Utility;
+import com.cadaloco.sunshine.utils.SunshineDateUtils;
+import com.cadaloco.sunshine.utils.SunshineWeatherUtils;
 
 import static com.cadaloco.sunshine.ForecastFragment.COL_WEATHER_DATE;
 
@@ -86,20 +87,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
         Context context = holder.mView.getContext();
-        boolean isMetric = Utility.isMetric(context);
+        boolean isMetric = SunshineWeatherUtils.isMetric(context);
         //String text = convertCursorRowToUXFormat(mCursor, isMetric);
 
         String descriptionText = mCursor.getString(ForecastFragment.COL_WEATHER_DESC);
         holder.mDescription.setText(descriptionText);
         long dateInMillis = mCursor.getLong(COL_WEATHER_DATE);
 
-        String date = Utility.getFriendlyDayString(context, dateInMillis);
+        String date = SunshineDateUtils.getFriendlyDayString(context, dateInMillis);
         holder.mDate.setText(date);
 
-        String highTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP, isMetric);
+        String highTemp = SunshineWeatherUtils.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MAX_TEMP, isMetric);
         holder.mHigh.setText(highTemp);
 
-        String lowTemp = Utility.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP, isMetric);
+        String lowTemp = SunshineWeatherUtils.formatTemperature(context, mCursor, ForecastFragment.COL_WEATHER_MIN_TEMP, isMetric);
         holder.mLow.setText(lowTemp);
 
         int weatherId = mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
@@ -109,13 +110,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         switch (viewType) {
             case VIEW_TYPE_TODAY: {
                 // Get weather icon
-                imageResource = Utility.getArtResourceForWeatherCondition(
+                imageResource = SunshineWeatherUtils.getArtResourceForWeatherCondition(
                         mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID));
                 break;
             }
             case VIEW_TYPE_FUTURE_DAY: {
                 // Get weather icon
-                imageResource = Utility.getIconResourceForWeatherCondition(
+                imageResource = SunshineWeatherUtils.getIconResourceForWeatherCondition(
                         mCursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID));
                 break;
             }
@@ -179,7 +180,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                     LogUtil.logMethodCalled();
                     Context context = view.getContext();
 
-                    String locationSetting = Utility.getPreferredLocation(context);
+                    String locationSetting = SunshineWeatherUtils.getPreferredLocation(context);
 
                     Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             locationSetting,

@@ -10,7 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cadaloco.sunshine.utils.LogUtil;
-import com.cadaloco.sunshine.utils.Utility;
+import com.cadaloco.sunshine.utils.SunshineWeatherUtils;
 
 public class MainActivity extends AppCompatActivity implements RecyclerAdapter.ForecastAdapterOnClickHandler {
 
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
     protected void onCreate(Bundle savedInstanceState) {
         LogUtil.logMethodCalled();
         super.onCreate(savedInstanceState);
-        mLocation = Utility.getPreferredLocation(this);
+        mLocation = SunshineWeatherUtils.getPreferredLocation(this);
 
         setContentView(R.layout.activity_main);
 
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
     @Override
     protected void onResume() {
         super.onResume();
-        String location = Utility.getPreferredLocation( this );
+        String location = SunshineWeatherUtils.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
             ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
