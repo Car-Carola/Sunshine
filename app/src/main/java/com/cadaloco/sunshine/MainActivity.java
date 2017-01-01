@@ -1,10 +1,8 @@
 package com.cadaloco.sunshine;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,15 +76,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
     private void openPreferredLocationInMap() {
         LogUtil.logMethodCalled();
 
-        SharedPreferences sharedPrefs =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        String location = sharedPrefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+        String location = SunshinePreferences.getPreferredLocation(this);
 
-        // Using the URI scheme for showing a location found on a map.  This super-handy
-        // intent can is detailed in the "Common Intents" page of Android's developer site:
-        // http://developer.android.com/guide/components/intents-common.html#Maps
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location)
                 .build();
@@ -97,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAdapter.F
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         } else {
-            LogUtil.d("Couldn't call " + location + ", no receiving apps installed!");
+            LogUtil.d("Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
         }
     }
 
