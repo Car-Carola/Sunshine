@@ -9,10 +9,10 @@ import com.cadaloco.sunshine.utils.NetworkUtils;
 
 import java.net.URL;
 
+import static com.cadaloco.sunshine.data.SunshinePreferences.getPreferredLocation;
 import static com.cadaloco.sunshine.utils.NetworkUtils.buildUrlWithLocationQuery;
 import static com.cadaloco.sunshine.utils.NetworkUtils.getResponseFromHttpUrlOK;
 import static com.cadaloco.sunshine.utils.OpenWeatherJsonUtils.getWeatherDataFromJson;
-import static com.cadaloco.sunshine.utils.SunshineWeatherUtils.getPreferredLocation;
 
 /**
  * Created by Carol on 01-Jan-17.

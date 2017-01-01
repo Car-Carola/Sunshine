@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cadaloco.sunshine.data.SunshinePreferences;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.data.WeatherContract.WeatherEntry;
 import com.cadaloco.sunshine.utils.LogUtil;
@@ -192,7 +193,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         switch(loader.getId()) {
             case DETAIL_LOADER:
 
-                boolean isMetric = SunshineWeatherUtils.isMetric(getContext());
+                boolean isMetric = SunshinePreferences.isMetric(getContext());
 
                 int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
                 mIconView.setImageResource(SunshineWeatherUtils.getArtResourceForWeatherCondition(weatherId));

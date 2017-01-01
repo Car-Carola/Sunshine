@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cadaloco.sunshine.data.SunshinePreferences;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.utils.LogUtil;
 import com.cadaloco.sunshine.utils.SunshineDateUtils;
@@ -87,7 +88,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
         Context context = holder.mView.getContext();
-        boolean isMetric = SunshineWeatherUtils.isMetric(context);
+        boolean isMetric = SunshinePreferences.isMetric(context);
         //String text = convertCursorRowToUXFormat(mCursor, isMetric);
 
         String descriptionText = mCursor.getString(ForecastFragment.COL_WEATHER_DESC);
@@ -180,7 +181,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                     LogUtil.logMethodCalled();
                     Context context = view.getContext();
 
-                    String locationSetting = SunshineWeatherUtils.getPreferredLocation(context);
+                    String locationSetting = SunshinePreferences.getPreferredLocation(context);
 
                     Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             locationSetting,

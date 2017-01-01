@@ -16,10 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cadaloco.sunshine.data.SunshinePreferences;
 import com.cadaloco.sunshine.data.WeatherContract;
 import com.cadaloco.sunshine.sync.SunshineSyncTask;
 import com.cadaloco.sunshine.utils.LogUtil;
-import com.cadaloco.sunshine.utils.SunshineWeatherUtils;
 
 public class ForecastFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -172,7 +172,7 @@ public class ForecastFragment extends Fragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         LogUtil.logMethodCalled();
 
-        String locationSetting = SunshineWeatherUtils.getPreferredLocation(getActivity());
+        String locationSetting = SunshinePreferences.getPreferredLocation(getActivity());
 
         switch(id) {
             case FORECAST_LOADER_DB:

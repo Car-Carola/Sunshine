@@ -3,6 +3,7 @@ package com.cadaloco.sunshine.utils;
 import android.content.ContentValues;
 import android.content.Context;
 
+import com.cadaloco.sunshine.data.SunshinePreferences;
 import com.cadaloco.sunshine.data.WeatherContract;
 
 import org.json.JSONArray;
@@ -84,7 +85,7 @@ public final class OpenWeatherJsonUtils {
         double cityLatitude = cityCoord.getDouble(OWM_LATITUDE);
         double cityLongitude = cityCoord.getDouble(OWM_LONGITUDE);
 
-        long locationId = SunshineWeatherUtils.addLocation(context, locationSetting, cityName, cityLatitude, cityLongitude);
+        long locationId = SunshinePreferences.addLocation(context, locationSetting, cityName, cityLatitude, cityLongitude);
 
         long normalizedUtcStartDay = SunshineDateUtils.getNormalizedUtcDateForToday();
 
